@@ -14,16 +14,6 @@ import argparse
 import utils
 import constants
 
-def readInput(fileName):
-    with open(fileName, 'rb') as csvfile:
-        contactsReader = csv.DictReader(csvfile, delimiter=',', quotechar='"')
-
-        contactList = []
-        for contact in contactsReader:            
-            contactList.append(contact)    
-
-        return contactList
-
 def transformData(contactsData):
     transformedContactsData = []
 
@@ -87,7 +77,7 @@ def processCommandline():
 
 def main():
     args = processCommandline()
-    contactsData = readInput(args['input'])
+    contactsData = utils.readCSV(args['input'])
     transformedContactsData = transformData(contactsData)
     writeOutput(transformedContactsData, args['output'])
 

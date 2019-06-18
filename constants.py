@@ -27,3 +27,6 @@ REFUGEE = "refugee"
 
 # owner
 OWNER = "Owner"
+
+# DB name
+GANDHAKOSH_DB = "gandhakoshchs.db"
