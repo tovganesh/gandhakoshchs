@@ -12,35 +12,43 @@ import sqlite3
 import constants
 
 # connect to db
-def dbConnect(dbName = constants.GANDHAKOSH_DB):
+
+
+def dbConnect(dbName=constants.GANDHAKOSH_DB):
     db = sqlite3.connect(dbName)
     cursor = db.cursor()
 
     return db, cursor
 
 # check if table exists
+
+
 def doesTableExist(cursor, tableName):
-    sql = "SELECT name FROM sqlite_master WHERE type='table' AND name='?'"
-    cursor.execute(sql, (tableName,))
+    sql = "SELECT name FROM sqlite_master WHERE type='table' AND name=:table_name"
+    cursor.execute(sql, {"table_name": tableName})
     return len(cursor.fetchall()) > 0
 
-# create a table if not exist 
+# create a table if not exist
+
+
 def createTable(db, cursor, tableName, fields, forceDelete=False):
-    if (forceDelete):
-        sql = "DROP TABLE tableName"
+    tableExist = doesTableExist(cursor, tableName)
+    if (forceDelete and tableExist):
+        sql = "DROP TABLE " + tableName
         cursor.execute(sql)
         db.commit()
 
+    tableExist = doesTableExist(cursor, tableName)
+
     # check if table exists
-    if (doesTableExist(cursor, tableName)):
-        return False # can't make it
+    if (tableExist):
+        return False  # can't make it
 
     # make the table
-    sql = "CREATE TABLE ? ?"
-    cursor.execute(sql, (tableName, fields))
+    if (type(fields) != 'tuple'):
+        fields = tuple(fields)
+    sql = "CREATE TABLE " + tableName + " " + repr(fields)
+    cursor.execute(sql)
     db.commit()
 
     return True
-    
-
-

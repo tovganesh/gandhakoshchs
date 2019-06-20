@@ -12,19 +12,24 @@ import argparse
 import utils
 import dbutils
 
+
 def processCommandline():
-    parser = argparse.ArgumentParser(description='Import Google Contacts CSV to sql-lite')
-    parser.add_argument('--input', type=str, required=True, help='input contacts CSV - Google format')
+    parser = argparse.ArgumentParser(
+        description='Import Google Contacts CSV to sql-lite')
+    parser.add_argument('--input', type=str, required=True,
+                        help='input contacts CSV - Google format')
 
     return vars(parser.parse_args())
+
 
 def main():
     args = processCommandline()
     contactsData = utils.readCSV(args['input'])
 
     db, cursor = dbutils.dbConnect()
-    dbutils.createTable(db, cursor, "User", ("name", "contact"))
+    dbutils.createTable(db, cursor, "Owner", ("building text", "flat_number text", "primary_first_name text", "primary_last_name text",
+                                              "primary_email text", "primary_mobile text", "secondary_email text", "secondary_mobile text"), True)
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     main()
-
