@@ -22,13 +22,19 @@ def processCommandline():
     return vars(parser.parse_args())
 
 
+def importData(db, cursor, contactsData, tableName):
+    pass
+
+
 def main():
     args = processCommandline()
     contactsData = utils.readCSV(args['input'])
 
     db, cursor = dbutils.dbConnect()
     dbutils.createTable(db, cursor, "Owner", ("building text", "flat_number text", "primary_first_name text", "primary_last_name text",
-                                              "primary_email text", "primary_mobile text", "secondary_email text", "secondary_mobile text"), True)
+                                              "primary_email text", "primary_mobile text", "secondary_email text", "secondary_mobile text", "flat_type text"), True)
+
+    importData(db, cursor, contactsData, "Owner")
 
 
 if __name__ == "__main__":

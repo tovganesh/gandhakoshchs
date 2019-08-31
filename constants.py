@@ -30,4 +30,4 @@ REFUGEE = "refugee"
 OWNER = "Owner"
 
 # DB name
-GANDHAKOSH_DB = "gandhakoshchs.db"
+GANDHAKOSH_DB = "data/gandhakoshchs.db"
