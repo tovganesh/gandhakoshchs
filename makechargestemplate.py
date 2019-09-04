@@ -30,6 +30,8 @@ def processCommandline():
                         help='the charge day') 
     parser.add_argument('--dueday', type=str, required=False, default="10",
                         help='the due day') 
+    parser.add_argument('--duemonth', type=str, required=False, default="-",
+                        help='the due day') 
     parser.add_argument('--output', type=str, required=True,
                         help='CSV output for ApnaComplex import') 
     return vars(parser.parse_args())
@@ -44,7 +46,11 @@ def writeOutput(chargesData, fileName):
         for cd in chargesData:
             writer.writerow(cd)
 
-def transformToApnaComplexFormat(occupancyRecord, chargesData, month, year, chargeDay, dueDay):
+def unitPadding(unit):
+    unit = unit+""
+    return unit
+
+def transformToApnaComplexFormat(occupancyRecord, chargesData, month, year, chargeDay, dueDay, dueMonth):
     global chargesDataFields
 
     transformedRecords = []
@@ -55,7 +61,7 @@ def transformToApnaComplexFormat(occupancyRecord, chargesData, month, year, char
       print("applicable", applicable)
       rec = utils.listToDict(chargesDataFields)
       rec["Block"] = occupancyRecord["Block"]
-      rec["Unit"]  = occupancyRecord["Unit"]
+      rec["Unit"]  = unitPadding(occupancyRecord["Unit"])
       rec["Charge Type"] = applicable["head"]
       rec["Charge Description"] = applicable["description"] + " FOR " + utils.monthToShort(month) + " " + year
       rec["Charge Date"] = chargeDay + "/" + month + "/" + year
@@ -71,7 +77,7 @@ def transformToApnaComplexFormat(occupancyRecord, chargesData, month, year, char
          print("applicable", applicable)
          rec = utils.listToDict(chargesDataFields)
          rec["Block"] = occupancyRecord["Block"]
-         rec["Unit"]  = occupancyRecord["Unit"]
+         rec["Unit"]  = unitPadding(occupancyRecord["Unit"])
          rec["Charge Type"] = applicable["head"]
          rec["Charge Description"] = applicable["description"] + " FOR " + utils.monthToShort(month) + " " + year
          rec["Charge Date"] = chargeDay + "/" + month + "/" + year
@@ -79,6 +85,24 @@ def transformToApnaComplexFormat(occupancyRecord, chargesData, month, year, char
          rec["Amount"] = applicable["charge"]
 
          transformedRecords.append(rec)
+
+    for nBHK in ["1", "2", "3"]:
+      if (occupancyRecord["BHK"] == nBHK):
+         allApplicable = filter(lambda x: x["applicable"]==nBHK, chargesData)
+
+         for applicable in allApplicable:
+           print("applicable", applicable)
+           rec = utils.listToDict(chargesDataFields)
+           rec["Block"] = occupancyRecord["Block"]
+           rec["Unit"]  = unitPadding(occupancyRecord["Unit"])
+           rec["Charge Type"] = applicable["head"]
+           rec["Charge Description"] = applicable["description"]
+           rec["Charge Date"] = chargeDay + "/" + month + "/" + year
+           rec["Pay By Date(optional)"] = dueDay + "/" + dueMonth + "/" + year
+           rec["Amount"] = applicable["charge"]
+
+           transformedRecords.append(rec)
+
 
     return transformedRecords
 
@@ -93,11 +117,14 @@ def main():
     year  = args['year']
     chargeDay = args['chargeday']
     dueDay = args['dueday']
+    dueMonth = args['duemonth']
+
+    if (dueMonth == '-'): dueMonth = month
    
     transformedRecords = [] 
     for ocd in occupancyData:
        if (ocd['Residing'] == ''): continue # refugee flat, ignore
-       trec = transformToApnaComplexFormat(ocd, chargesData, month, year, chargeDay, dueDay)
+       trec = transformToApnaComplexFormat(ocd, chargesData, month, year, chargeDay, dueDay, dueMonth)
        print(ocd, trec)
 
        for rec in trec:
