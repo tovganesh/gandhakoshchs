@@ -48,7 +48,7 @@ def writeOutput(chargesData, fileName):
 
 def unitPadding(unit):
     unit = unit+""
-    return unit
+    return unit.zfill(4)
 
 def transformToApnaComplexFormat(occupancyRecord, chargesData, month, year, chargeDay, dueDay, dueMonth):
     global chargesDataFields
